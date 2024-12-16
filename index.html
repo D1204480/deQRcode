@@ -2,285 +2,285 @@
 <html lang="zh" xmlns="http://www.w3.org/1999/html">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>解碼 QR Code</title>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
-    <script src="./libs/jsQR-master/docs/jsQR.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>解碼 QR Code</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+  <script src="./libs/jsQR-master/docs/jsQR.js"></script>
 
 
-    <style>
-        .decode-qrcode-view {
-            padding: 20px;
-        }
+  <style>
+    .decode-qrcode-view {
+      padding: 20px;
+    }
 
-        .scan-methods {
-            margin-bottom: 20px;
-        }
+    .scan-methods {
+      margin-bottom: 20px;
+    }
 
-        .scan-methods button {
-            margin-right: 10px;
-            padding: 8px 16px;
-            cursor: pointer;
-        }
+    .scan-methods button {
+      margin-right: 10px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
 
-        .scan-methods button.active {
-            background-color: #4CAF50;
-            color: white;
-        }
+    .scan-methods button.active {
+      background-color: #4CAF50;
+      color: white;
+    }
 
-        .camera-container {
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            position: relative;
-        }
+    .camera-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      position: relative;
+    }
 
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1;
-        }
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1;
+    }
 
-        button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
 
-        h2 {
-            color: #333;
-            margin-top: 20px;
-        }
+    h2 {
+      color: #333;
+      margin-top: 20px;
+    }
 
-        p {
-            font-size: 16px;
-            color: #666;
-        }
+    p {
+      font-size: 16px;
+      color: #666;
+    }
 
-        .error {
-            color: red;
-            margin-top: 10px;
-        }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
 
-        .hidden {
-            display: none;
-        }
+    .hidden {
+      display: none;
+    }
 
-        #video {
-            width: 100%;
-            max-width: 500px;
-        }
+    #video {
+      width: 100%;
+      max-width: 500px;
+    }
 
-        #canvas {
-            display: none;
-        }
+    #canvas {
+      display: none;
+    }
 
-        .scanning-area {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-        }
+    .scanning-area {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
 
-        .scanning-line {
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background: red;
-            animation: scan 2s linear infinite;
-        }
+    .scanning-line {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: red;
+      animation: scan 2s linear infinite;
+    }
 
-        @keyframes scan {
-            0% {
-                top: 0;
-            }
+    @keyframes scan {
+      0% {
+        top: 0;
+      }
 
-            100% {
-                top: 100%;
-            }
-        }
-    </style>
+      100% {
+        top: 100%;
+      }
+    }
+  </style>
 </head>
 
 <body>
-<div id="app" class="decode-qrcode-view">
+  <div id="app" class="decode-qrcode-view">
     <h1>解碼 QR Code</h1>
 
     <div class="scan-methods">
-        <button @click="switchMethod('file')" :class="{ active: scanMethod === 'file' }">檔案上傳</button>
-        <button @click="switchMethod('camera')" :class="{ active: scanMethod === 'camera' }">相機掃描</button>
+      <button @click="switchMethod('file')" :class="{ active: scanMethod === 'file' }">檔案上傳</button>
+      <button @click="switchMethod('camera')" :class="{ active: scanMethod === 'camera' }">相機掃描</button>
     </div>
 
     <div v-show="scanMethod === 'file'">
-        <input type="file" @change="handleFileChange" accept="image/*" />
+      <input type="file" @change="handleFileChange" accept="image/*" />
     </div>
 
     <div v-show="scanMethod === 'camera'" class="camera-container">
-        <div class="scanning-area">
-            <video id="video" autoplay playsinline></video>
-            <div class="scanning-line"></div>
-        </div>
-        <canvas id="canvas"></canvas>
-        <div class="loading-overlay" v-show="loadingCamera">
-            正在啟動相機...
-        </div>
+      <div class="scanning-area">
+        <video id="video" autoplay playsinline></video>
+        <div class="scanning-line"></div>
+      </div>
+      <canvas id="canvas"></canvas>
+      <div class="loading-overlay" v-show="loadingCamera">
+        正在啟動相機...
+      </div>
     </div>
 
     <div v-show="decodedContent">
-        <button @click="decryptContent">進行解密</button>
+      <button @click="decryptContent">進行解密</button>
     </div>
 
     <div v-show="decryptedContent">
-        <h2>解密結果：</h2>
-        <p>訂單編號: {{ parsedContent.orderId }}</p>
-        <p>用戶 ID: {{ parsedContent.userId }}</p>
-        <p>訂單日期: {{ parsedContent.orderDate }}</p>
-        <p>時間戳: {{ parsedContent.timestamp }}</p>
+      <h2>解密結果：</h2>
+      <p>訂單編號: {{ parsedContent.orderId }}</p>
+      <p>用戶 ID: {{ parsedContent.userId }}</p>
+      <p>訂單日期: {{ parsedContent.orderDate }}</p>
+      <p>時間戳: {{ parsedContent.timestamp }}</p>
 
     </div>
 
 
     <div v-show="errorMessage" class="error">
-        <p>{{ errorMessage }}</p>
+      <p>{{ errorMessage }}</p>
     </div>
-</div>
-<script>
-new Vue({
-el: "#app",
-data: {
-scanMethod: 'file',
-decodedContent: null,
-decryptedContent: null,
-parsedContent: {
-orderId: null,
-orderDate: null
-},
-errorMessage: null,
-secretKey: "1234567890123456",
-loadingCamera: false,
-videoStream: null
-},
-methods: {
-    switchMethod(method) {
-        this.scanMethod = method;
-        if (method === 'camera') {
+  </div>
+  <script>
+    new Vue({
+      el: "#app",
+      data: {
+        scanMethod: 'file',
+        decodedContent: null,
+        decryptedContent: null,
+        parsedContent: {
+          orderId: null,
+          orderDate: null
+        },
+        errorMessage: null,
+        secretKey: "1234567890123456",
+        loadingCamera: false,
+        videoStream: null
+      },
+      methods: {
+        switchMethod(method) {
+          this.scanMethod = method;
+          if (method === 'camera') {
             this.initCamera();
-        } else {
+          } else {
             this.stopCamera();
-        }
-    },
-    async initCamera() {
-        const video = document.getElementById('video');
-        this.loadingCamera = true;
-        try {
+          }
+        },
+        async initCamera() {
+          const video = document.getElementById('video');
+          this.loadingCamera = true;
+          try {
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: "environment",
-                    width: {ideal: 1280},
-                    height: {ideal: 720}
-                }
+              video: {
+                facingMode: "environment",
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+              }
             });
             this.videoStream = stream;
             video.srcObject = stream;
 
-// Wait until the video metadata is loaded
+            // Wait until the video metadata is loaded
             video.onloadedmetadata = () => {
-                video.play();
-                console.log("Camera metadata loaded, starting QR code scanning...");
-                this.scanQRCode();
+              video.play();
+              console.log("Camera metadata loaded, starting QR code scanning...");
+              this.scanQRCode();
             };
-        } catch (error) {
+          } catch (error) {
             console.error("Camera initialization failed: ", error);
             this.handleCameraError(error);
-        } finally {
+          } finally {
             this.loadingCamera = false;
-        }
-    },
-    stopCamera() {
-        if (this.videoStream) {
-// 停止所有的相機流
+          }
+        },
+        stopCamera() {
+          if (this.videoStream) {
+            // 停止所有的相機流
             this.videoStream.getTracks().forEach(track => track.stop());
             this.videoStream = null;
-        }
-    },
-    scanQRCode() {
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
-        if (!video || !this.videoStream) return;
+          }
+        },
+        scanQRCode() {
+          const video = document.getElementById('video');
+          const canvas = document.getElementById('canvas');
+          const context = canvas.getContext('2d');
+          if (!video || !this.videoStream) return;
 
-        if (video.videoWidth === 0 || video.videoHeight === 0) {
+          if (video.videoWidth === 0 || video.videoHeight === 0) {
             console.log("Video dimensions not ready, retrying...");
             requestAnimationFrame(this.scanQRCode);
             return;
-        }
+          }
 
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
             inversionAttempts: "dontInvert",
-        });
+          });
 
-        if (code) {
+          if (code) {
             console.log("QR Code detected: ", code.data);
             this.decodedContent = code.data;
             this.stopCamera();
-        } else {
+          } else {
             console.log("Scanning for QR Code...");
             requestAnimationFrame(this.scanQRCode);
-        }
-    },
-    async handleFileChange(event) {
-        const file = event.target.files[0];
-        if (!file) {
+          }
+        },
+        async handleFileChange(event) {
+          const file = event.target.files[0];
+          if (!file) {
             this.errorMessage = "請選擇一個有效的圖片文件。";
             return;
-        }
+          }
 
-        const formData = new FormData();
-        formData.append("file", file);
+          const formData = new FormData();
+          formData.append("file", file);
 
-        try {
+          try {
             const response = await axios.post("http://localhost:8080/api/orders/qrcode/decode", formData, {
-                headers: {"Content-Type": "multipart/form-data"}
+              headers: { "Content-Type": "multipart/form-data" }
             });
             console.log("File decoded successfully", response.data);
             this.decodedContent = response.data;
-        } catch (error) {
+          } catch (error) {
             console.error("File decoding failed: ", error);
             this.errorMessage = "無法解碼 QR Code，請確保上傳的文件有效。";
-        }
-    },
-    decryptContent() {
-        if (!this.decodedContent) {
+          }
+        },
+        decryptContent() {
+          if (!this.decodedContent) {
             this.errorMessage = "沒有可解密的內容，請先解碼 QR Code。";
             return;
-        }
+          }
 
-        try {
+          try {
             const bytes = CryptoJS.AES.decrypt(
-                this.decodedContent,
-                CryptoJS.enc.Utf8.parse(this.secretKey),
-                {
-                    mode: CryptoJS.mode.ECB,
-                    padding: CryptoJS.pad.Pkcs7
-                }
+              this.decodedContent,
+              CryptoJS.enc.Utf8.parse(this.secretKey),
+              {
+                mode: CryptoJS.mode.ECB,
+                padding: CryptoJS.pad.Pkcs7
+              }
             );
 
             const decrypted = bytes.toString(CryptoJS.enc.Utf8);
@@ -296,28 +296,28 @@ methods: {
             const dynamicMatch = decrypted.match(/Dynamic: (.+)/);
 
             this.parsedContent = {
-                orderId: orderIdMatch ? orderIdMatch[1] : null,
-                userId: userIdMatch ? userIdMatch[1] : null,
-                reservationId: reservationIdMatch ? reservationIdMatch[1] : null,
-                orderDate: orderDateMatch ? orderDateMatch[1] : null,
-                statusId: statusIdMatch ? statusIdMatch[1] : null,
-                timestamp: timestampMatch ? timestampMatch[1] : null,
-                dynamic: dynamicMatch ? dynamicMatch[1] : null
+              orderId: orderIdMatch ? orderIdMatch[1] : null,
+              userId: userIdMatch ? userIdMatch[1] : null,
+              reservationId: reservationIdMatch ? reservationIdMatch[1] : null,
+              orderDate: orderDateMatch ? orderDateMatch[1] : null,
+              statusId: statusIdMatch ? statusIdMatch[1] : null,
+              timestamp: timestampMatch ? timestampMatch[1] : null,
+              dynamic: dynamicMatch ? dynamicMatch[1] : null
             };
 
             this.decryptedContent = decrypted;
-        } catch (error) {
+          } catch (error) {
             console.error("Decryption failed: ", error);
             this.errorMessage = "解密失敗，請確認密鑰或內容是否正確。";
+          }
+        },
+        handleCameraError(error) {
+          this.errorMessage = "無法啟動相機，請確保您已授權瀏覽器訪問相機。";
         }
-    },
-    handleCameraError(error) {
-        this.errorMessage = "無法啟動相機，請確保您已授權瀏覽器訪問相機。";
-    }
-}
-});
+      }
+    });
 
-</script>
+  </script>
 </body>
 
 </html>
