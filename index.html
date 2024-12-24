@@ -96,12 +96,17 @@
     }
 
     .scanning-line {
-      position: absolute;
-      width: 100%;
-      height: 2px;
-      background: red;
-      animation: scan 2s linear infinite;
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background: red;
+        animation: scan 2s linear infinite;
     }
+
+    .scanning-line.stopped {
+        animation: none; /* 停止動畫 */
+    }
+
 
     @keyframes scan {
       0% {
@@ -131,7 +136,7 @@
     <div v-show="scanMethod === 'camera'" class="camera-container">
       <div class="scanning-area">
         <video id="video" autoplay playsinline></video>
-        <div class="scanning-line"></div>
+          <div class="scanning-line" :class="{ stopped: !isScanning }"></div>
       </div>
       <canvas id="canvas"></canvas>
       <div class="loading-overlay" v-show="loadingCamera">
@@ -139,11 +144,13 @@
       </div>
     </div>
 
-    <div v-show="decodedContent">
-      <button @click="decryptContent">進行解密</button>
-    </div>
+      <div v-show="decodedContent">
+          <p style="color: #4CAF50; font-weight: bold;">掃描成功！請點擊按鈕進行解密。</p>
+          <button @click="decryptContent">進行解密</button>
+      </div>
 
-    <div v-show="decryptedContent">
+
+      <div v-show="decryptedContent">
       <h2>解密結果：</h2>
       <p>訂單編號: {{ parsedContent.orderId }}</p>
       <p>用戶 ID: {{ parsedContent.userId }}</p>
@@ -171,7 +178,8 @@
         errorMessage: null,
         secretKey: "1234567890123456",
         loadingCamera: false,
-        videoStream: null
+        videoStream: null,
+          isScanning: true // 控制掃描線動畫
       },
       methods: {
         switchMethod(method) {
@@ -215,6 +223,7 @@
             this.videoStream.getTracks().forEach(track => track.stop());
             this.videoStream = null;
           }
+            this.isScanning = false; // 停止掃描線動畫
         },
         scanQRCode() {
           const video = document.getElementById('video');
@@ -240,7 +249,12 @@
           if (code) {
             console.log("QR Code detected: ", code.data);
             this.decodedContent = code.data;
-            this.stopCamera();
+              // 暫停攝影機與紅線動畫
+              this.stopCamera();
+              video.pause(); // 暫停視頻畫面
+              // 停止掃描線動畫
+              const scanningLine = document.querySelector(".scanning-line");
+              scanningLine.style.animation = "none"; // 停止紅線動畫
           } else {
             console.log("Scanning for QR Code...");
             requestAnimationFrame(this.scanQRCode);
@@ -314,7 +328,7 @@
         handleCameraError(error) {
           this.errorMessage = "無法啟動相機，請確保您已授權瀏覽器訪問相機。";
         }
-      }
+        }
     });
 
   </script>
